@@ -1,0 +1,4 @@
+#!/usr/bin/env bash
+
+#If ./finish exits 125, then s6-supervise sends a 'O' event to ./event before the 'D', and it does not restart the service
+exit 125

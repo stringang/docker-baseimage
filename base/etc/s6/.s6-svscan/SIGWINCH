@@ -1,0 +1,6 @@
+#!/usr/bin/env bash
+
+for service in /etc/s6/*
+do
+	s6-svwait -d $service
+done

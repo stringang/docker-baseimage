@@ -1,0 +1,28 @@
+FROM almalinux/8-init:8.8-20230718
+
+LABEL authors="gang.liu"
+
+RUN dnf install -y \
+    tzdata \
+    lsof \
+    net-tools \
+    iproute \
+    curl \
+    tcpdump \
+    openssl \
+    vim \
+    bash-completion \
+    wget \
+    psmisc \
+    procps \
+    iotop \
+    htop \
+    ca-certificates \
+    ;
+
+# Minimize the systemd setup
+# ref: https://github.com/freeipa/freeipa-container/blob/master/Dockerfile.almalinux-8#L26
+RUN find /etc/systemd/system /usr/lib/systemd/system/{basic,multi-user,sysinit}.target.wants -type l \! -lname /dev/null | xargs rm -v
+RUN systemctl mask systemd-logind.service && mv /usr/lib/systemd/system/systemd-logind.service /usr/lib/systemd/system/systemd-logind.service-disable-dbus
+
+ENTRYPOINT [ "/usr/sbin/init" ]

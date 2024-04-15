@@ -1,0 +1,17 @@
+FROM stringang/centos-s6
+
+RUN echo '#!/bin/bash' > /s6services/app/run && \
+    echo 'cd /appruntime/nodejs/${APP_NAME}' >> /s6services/app/run && \
+    echo 'if [[ -f /appruntime/nodejs/start.sh ]]; then' >> /s6services/app/run && \
+    echo '    echo "/bin/bash /appruntime/nodejs/start.sh"' >> /s6services/app/run && \
+    echo '    /bin/bash /appruntime/nodejs/start.sh || exit 1' >> /s6services/app/run && \
+    echo 'elif [[ "${APP_BIN}" != "" ]]; then' >> /s6services/app/run && \
+    echo '    echo "node ${APP_BIN}"' >> /s6services/app/run && \
+    echo '    node ${APP_BIN} || exit 1' >> /s6services/app/run && \
+    echo 'else' >> /s6services/app/run && \
+    echo '    echo "node ${APP_NAME}"' >> /s6services/app/run && \
+    echo '    node ${APP_NAME} || exit 1' >> /s6services/app/run && \
+    echo 'fi' >> /s6services/app/run && \
+    echo '' >> /s6services/app/run && \
+    chmod 755 /s6services/app/run
+

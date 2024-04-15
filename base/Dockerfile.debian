@@ -1,0 +1,24 @@
+FROM debian:bullseye
+
+ARG VERSION
+
+LABEL version="1.0"
+LABEL maintainer="gang.liu"
+
+RUN apt-get install -y \
+    tzdata \
+    lsof \
+    vim \
+    telnet \
+    net-tools \
+    iproute \
+    curl \
+    tcpdump \
+    openssl \
+    ca-certificates \
+    dumb-init \
+    ;
+
+ENTRYPOINT ["/usr/bin/dumb-init", "--"]
+
+CMD ["python2.7", "-m", "SimpleHTTPServer", "8080"]

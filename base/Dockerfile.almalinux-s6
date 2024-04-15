@@ -1,0 +1,48 @@
+FROM almalinux:8.8-20230718
+
+LABEL authors="gang.liu"
+
+RUN rpm --import https://repo.almalinux.org/almalinux/RPM-GPG-KEY-AlmaLinux \
+  && dnf install -y \
+    passwd \
+    tzdata \
+    lsof \
+    net-tools \
+    iproute \
+    curl \
+    tcpdump \
+    openssl \
+    vim \
+    bash-completion \
+    wget \
+    psmisc \
+    procps \
+    iotop \
+    ca-certificates \
+    openssh \
+    openssh-server \
+    epel-release.noarch \
+    unzip \
+  && dnf update -y;
+
+COPY root/ /root/
+COPY etc/ /etc
+
+# ssh
+ADD https://raw.githubusercontent.com/fedora-sysv/initscripts/main/etc/rc.d/init.d/functions /etc/rc.d/init.d/
+ADD https://raw.githubusercontent.com/OpenMandrivaAssociation/openssh/master/sshd-keygen /usr/sbin/
+RUN chmod +x /usr/sbin/sshd-keygen \
+    && sshd-keygen \
+    && sed -i 's/GSSAPIAuthentication yes/GSSAPIAuthentication no/g' /etc/ssh/sshd_config \
+    && sed -i 's/UseDNS yes/UseDNS no/g' /etc/ssh/sshd_config \
+    && echo test@2024ABC | passwd --stdin root
+
+# jvm-sandbox
+RUN wget https://ompc.oss-cn-hangzhou.aliyuncs.com/jvm-sandbox/release/sandbox-1.3.3-bin.zip && unzip sandbox-1.3.3-bin.zip -d /opt/sandbox
+
+# install s6
+RUN mkdir -p /s6
+ADD root/s6-2.11.0.0-linux-x86-bin.tar.gz /s6
+RUN cp /s6/bin/* /usr/bin/
+
+ENTRYPOINT ["/usr/bin/s6-svscan","/etc/s6"]

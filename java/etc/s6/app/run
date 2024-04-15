@@ -1,0 +1,175 @@
+#!/usr/bin/env bash
+
+cd /appruntime/java/${APP_NAME}
+
+_pre_action(){
+    if [[ "${ENV_LEVEL}" = "TEST" ]]; then
+        echo "ENV_LEVEL is TEST try to update ip information for Doraemon"
+        curl --connect-timeout 1 -m 2 -s "http://doraemon-uat.cs-test.example.cn/api/payment/gray/notify?preIps=${OLD_POD_IPS}&curIp=${POD_IP}&appName=${APP_NAME}&featureTag=${FEATURE_NAME}"
+        echo "call Doraemon done"
+    fi
+}
+
+_prepare_args(){
+    if [[ "${ENV_APP_RUN_ARGS}" != "" ]]; then
+        echo "found ENV_APP_RUN_ARGS,replace pagoda APP_RUN_ARGS"
+        echo "replace ${APP_RUN_ARGS} with ${ENV_APP_RUN_ARGS}"
+        export APP_RUN_ARGS=${ENV_APP_RUN_ARGS}
+    fi
+    # 默认JVM参数屏蔽开关
+    if [[ "${ENABLE_CS_JVM_OPTS}" = "" ]]; then
+        export ENABLE_CS_JVM_OPTS=false
+    fi
+    if [[ "${ENV_LEVEL}" = "PRO" ]]; then
+        export APP_EXTR_ARGS="${APP_EXTR_ARGS} -Dspringdoc.swagger-ui.enabled=false -Dspringdoc.api-docs.enabled=false  -Dspringfox.documentation.enabled=false"
+    fi
+    if [[ "${APP_EXTR_ARGS}" != "" ]]; then
+        export APP_RUN_ARGS="${APP_RUN_ARGS} ${APP_EXTR_ARGS}"
+    fi
+    echo "effectively arguments: "
+    echo "${APP_RUN_ARGS}"
+}
+
+_load_plugin_args(){
+    # 默认不打开 LUBAN
+    if [[ "${ENABLE_LUBAN}" = "" ]]; then
+        export ENABLE_LUBAN="false" 
+    fi
+    # test 环境，默认打开 REPEATER,流量数据采集
+    if [[ "${ENV}" = "test" && "${ENABLE_REPEATER}" = "" ]]; then
+        export ENABLE_REPEATER="true"
+    fi
+
+    # 默认打开 sandbox-agent
+    if [[ "${ENABLE_SANDBOX}" = "false" ]]; then
+        export APP_RUN_ARGS=`echo ${APP_RUN_ARGS} | sed 's#-javaagent:/root/middleware/tracking/lib/sandbox-agent.jar.*dk.class.preload.timeout=140##g'`
+        export APP_RUN_ARGS=`echo ${APP_RUN_ARGS} | sed 's#-javaagent:/opt/sandbox/lib/sandbox-agent.jar##g'`
+        export ENABLE_DYNAMIC_ROUTER="false"
+        export ENABLE_SANDBOX="false"
+        export ENABLE_TRACK="false"
+        export ENABLE_REPEATER="false"
+        export ENABLE_LUBAN="false"
+        export ENABLE_MOCK="false"
+    else
+        export ENABLE_SANDBOX=true
+        export PLUGIN_ARGS="-javaagent:/opt/sandbox/lib/sandbox-agent.jar"
+        export APP_RUN_ARGS=`echo ${APP_RUN_ARGS} | sed 's#-javaagent:/root/middleware/tracking/lib/sandbox-agent.jar.*dk.class.preload.timeout=140##g'`
+        export APP_RUN_ARGS=`echo ${APP_RUN_ARGS} | sed -E 's#\s+-javaagent:/opt/sandbox/lib/sandbox-agent.jar=\S+\s+# #g'`
+        if [[ "${ENABLE_TRACK}" = "false" ]]; then
+            echo "[INFO] ENABLE_TRACK=false, disable tracking-agent"
+            export APP_RUN_ARGS=`echo ${APP_RUN_ARGS} | sed 's#-Ddk.logging.path=. -Ddk.class.preload.timeout=140##g'`
+        else
+            export ENABLE_TRACK=true
+            export APP_RUN_ARGS=`echo ${APP_RUN_ARGS} | sed -E 's#\s+-Ddk.class.preload.timeout=\S+\s+# #g'`
+            export PLUGIN_ARGS="${PLUGIN_ARGS} -Ddk.logging.path=. "
+        fi
+
+        # 以环境变量传入优先级最高
+        if [[ "${ENABLE_DYNAMIC_ROUTER}" != "" ]]; then
+            export APP_RUN_ARGS=`echo ${APP_RUN_ARGS} | sed 's#-Ddynamic.router.enable=true##g' | sed 's#-Ddynamic.router.enable=false##g'`
+            export PLUGIN_ARGS="${PLUGIN_ARGS} -Ddynamic.router.enable=${ENABLE_DYNAMIC_ROUTER}"
+        else
+            # 如果启动参数里面有
+            dynamic_router_true=`echo ${APP_RUN_ARGS} | grep '\-Ddynamic.router.enable=true'`
+            dynamic_router_false=`echo ${APP_RUN_ARGS} | grep '\-Ddynamic.router.enable=false'`
+            if [[ "${dynamic_router_true}" != "" ]]; then
+                export ENABLE_DYNAMIC_ROUTER=true
+            elif [[ "${dynamic_router_false}" != "" ]]; then
+                export ENABLE_DYNAMIC_ROUTER=false
+            else
+                # 默认为空的情况
+                export ENABLE_DYNAMIC_ROUTER=false
+                export PLUGIN_ARGS="${PLUGIN_ARGS} -Ddynamic.router.enable=${ENABLE_DYNAMIC_ROUTER}"
+            fi
+        fi
+        export APP_RUN_ARGS="${PLUGIN_ARGS} ${APP_RUN_ARGS}"
+    fi
+
+    if [[ "${ENABLE_JACOCO}" = "" ]]; then
+        export ENABLE_JACOCO=false
+    fi
+
+    if [[ "${ENABLE_JACOCO}" = "true" ]]; then
+        if ! echo "${APP_RUN_ARGS}" | grep 'jacoco/lib/jacocoagent.jar' >/dev/null 2>&1; then
+            export APP_RUN_ARGS="${APP_RUN_ARGS} -javaagent:/opt/example/soft/jacoco/jacoco-agent.jar=includes=com.example.*:com.frxs.*:com.example.*:com.mmmy.*,output=tcpserver,port=9999,address=0.0.0.0"
+            if [[ "${JACOCO_EXCLUDES}" != "" ]]; then
+                export APP_RUN_ARGS="${APP_RUN_ARGS},${JACOCO_EXCLUDES}"
+            fi
+        fi
+    fi
+
+    export APP_RUN_ARGS="${APP_RUN_ARGS} -DappName=${APP_NAME} -DenvType=${ENV_TYPE} -DenvLevel=${ENV_LEVEL}" 
+    echo "append plugin arguments: "
+    echo ${APP_RUN_ARGS}
+}
+
+_do_prefix_ops(){
+    # ENABLE_CS_JVM_OPTS=true 时全部使用自定义参数
+    if [[ "${JVM_OPTS_PREFIX}" != "" && "${ENABLE_CS_JVM_OPTS}" = "false" ]]; then
+        export exist_cagent=`echo ${JVM_OPTS_PREFIX} | grep 'javaagent:/opt/javaagent/jmx_prometheus_javaagent.jar=5555:/opt/javaagent/config.yaml'`
+        if [[ "${exist_cagent}" = "" ]]; then
+            export JVM_OPTS_PREFIX="-javaagent:/opt/javaagent/jmx_prometheus_javaagent.jar=5555:/opt/javaagent/config.yaml ${JVM_OPTS_PREFIX}"
+        fi
+        export APP_RUN_ARGS=`echo ${APP_RUN_ARGS} | sed -E 's/-X(m|s)(x|n|s)[0-9]+(M|G|K|m|g|k)//g'`
+        export APP_RUN_ARGS="${JVM_OPTS_PREFIX} ${APP_RUN_ARGS}"
+    fi
+    echo "final effectively arguments: "
+    echo "${APP_RUN_ARGS}"
+}
+
+do_args(){
+    _prepare_args
+    _load_plugin_args
+    _do_prefix_ops
+}
+
+
+before_start(){
+    _pre_action
+    do_args
+    echo "${APP_NAME} ${FEATURE_NAME} ${OLD_POD_IPS} ${POD_IP} ${APOLLO_ADDR}"
+    if [[ "${ENABLE_TRACK}" = "true" ]]; then
+	/bin/bash /appruntime/java/tracking-agent.sh
+    fi
+    if [[ "${ENABLE_DYNAMIC_ROUTER}" = "true" ]]; then
+        if [[ "${ENV_LEVEL}" = "PRO" ]]; then
+            /bin/bash /appruntime/java/dynamic-router-prod.sh
+        else
+            /bin/bash /appruntime/java/dynamic-router-test.sh
+        fi
+    fi
+    if [[ "${ENABLE_REPEATER}" = "true" ]]; then
+        /bin/bash /appruntime/java/repeater-agent-dev.sh
+    fi
+    if [[ "${ENABLE_LUBAN}" = "true" ]]; then
+        /bin/bash /appruntime/java/luban-test.sh
+    fi
+    if [[ "${ENABLE_MOCK}" = "true" ]]; then
+	/bin/bash /appruntime/java/pocket-holyfaker-test.sh
+    fi
+    if [[ "${ENABLE_JACOCO}" = "true" ]]; then
+        /bin/bash /appruntime/java/jacoco.sh
+    fi
+}
+
+
+do_start(){
+    if [[ -f /appruntime/java/start.sh ]]; then
+        echo "/bin/bash /appruntime/java/start.sh"
+        /bin/bash /appruntime/java/start.sh || exit 1
+    elif [[ "${APP_BIN}" != ""  ]]; then
+        echo "java ${APP_RUN_ARGS} -jar ${APP_BIN} ${APP_SUFFIX_ARGS}"
+        java ${APP_RUN_ARGS} -jar ${APP_BIN} ${APP_SUFFIX_ARGS} || exit 1
+    else
+        echo "java ${APP_RUN_ARGS} -jar ${APP_NAME}.jar ${APP_SUFFIX_ARGS}"
+        java ${APP_RUN_ARGS} -jar ${APP_NAME}.jar ${APP_SUFFIX_ARGS} || exit 1
+    fi
+}
+    
+
+main(){
+    before_start
+    do_start || exit 1
+}
+
+main
