@@ -2,6 +2,9 @@ FROM centos:centos7.9.2009
 
 ARG VERSION
 
+COPY etc/ /etc
+COPY root/ /root/
+
 RUN yum install -y \
     tzdata \
     lsof \
@@ -22,9 +25,6 @@ RUN yum install -y \
     unzip \
     ;
 
-COPY root/ /root/
-COPY etc/ /etc
-
 # ssh
 ADD https://raw.githubusercontent.com/fedora-sysv/initscripts/main/etc/rc.d/init.d/functions /etc/rc.d/init.d/
 ADD https://raw.githubusercontent.com/OpenMandrivaAssociation/openssh/master/sshd-keygen /usr/sbin/
@@ -35,10 +35,13 @@ RUN chmod +x /usr/sbin/sshd-keygen \
     && echo test@2024ABC | passwd --stdin root
 
 # jvm-sandbox
-RUN wget https://ompc.oss-cn-hangzhou.aliyuncs.com/jvm-sandbox/release/sandbox-1.3.3-bin.zip && unzip sandbox-1.3.3-bin.zip -d /opt/sandbox
+RUN wget https://ompc.oss-cn-hangzhou.aliyuncs.com/jvm-sandbox/release/sandbox-1.3.3-bin.zip -P /tmp && \
+  unzip /tmp/sandbox-1.3.3-bin.zip -d /opt && \
+  rm /tmp/sandbox-1.3.3-bin.zip
 
 # install s6
 RUN mkdir -p /s6
+# 复制 skaware 编译产物，自动解压
 ADD root/s6-2.11.0.0-linux-x86-bin.tar.gz /s6
 RUN cp /s6/bin/* /usr/bin/
 
