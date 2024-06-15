@@ -2,23 +2,26 @@ FROM almalinux/8-init:8.8-20230718
 
 LABEL authors="gang.liu"
 
-RUN dnf install -y \
-    tzdata \
-    lsof \
-    net-tools \
-    iproute \
-    curl \
-    tcpdump \
-    openssl \
-    vim \
-    bash-completion \
-    wget \
-    psmisc \
-    procps \
-    iotop \
-    htop \
-    ca-certificates \
-    ;
+RUN dnf install -y epel-release \
+  && dnf update -y \
+  && dnf install -y \
+        tzdata \
+        lsof \
+        net-tools \
+        iproute \
+        curl \
+        tcpdump \
+        openssl \
+        vim \
+        bash-completion \
+        wget \
+        psmisc \
+        procps \
+        iotop \
+        htop \
+        ca-certificates \
+  && rm -rf /var/cache/dnf \
+  && dnf clean all
 
 # Minimize the systemd setup
 # ref: https://github.com/freeipa/freeipa-container/blob/master/Dockerfile.almalinux-8#L26

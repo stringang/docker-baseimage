@@ -7,27 +7,29 @@ COPY --exclude=CentOS-Base.repo etc/ /etc
 COPY root/ /root/
 
 RUN rpm --import https://repo.almalinux.org/almalinux/RPM-GPG-KEY-AlmaLinux \
+  && dnf update -y \
   && dnf install -y \
-    passwd \
-    tzdata \
-    lsof \
-    net-tools \
-    iproute \
-    curl \
-    tcpdump \
-    openssl \
-    vim \
-    bash-completion \
-    wget \
-    psmisc \
-    procps \
-    iotop \
-    ca-certificates \
-    openssh \
-    openssh-server \
-    epel-release.noarch \
-    unzip \
-  && dnf update -y;
+        passwd \
+        tzdata \
+        lsof \
+        net-tools \
+        iproute \
+        curl \
+        tcpdump \
+        openssl \
+        vim \
+        bash-completion \
+        wget \
+        psmisc \
+        procps \
+        iotop \
+        ca-certificates \
+        openssh \
+        openssh-server \
+        epel-release.noarch \
+        unzip \
+  && rm -rf /var/cache/dnf \
+  && dnf clean all
 
 # ssh
 ADD https://raw.githubusercontent.com/fedora-sysv/initscripts/main/etc/rc.d/init.d/functions /etc/rc.d/init.d/

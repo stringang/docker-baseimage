@@ -2,18 +2,20 @@ FROM centos:centos7.9.2009
 
 ARG VERSION
 
-RUN yum install -y \
-    tzdata \
-    lsof \
-    vim \
-    telnet \
-    net-tools \
-    iproute \
-    curl \
-    tcpdump \
-    openssl \
-    ca-certificates \
-    ;
+RUN yum update -y \
+  && yum install -y \
+        tzdata \
+        lsof \
+        vim \
+        telnet \
+        net-tools \
+        iproute \
+        curl \
+        tcpdump \
+        openssl \
+        ca-certificates \
+  && rm -rf /var/cache/yum \
+  && yum clean all
 
 # s6 overlay
 ADD https://github.com/just-containers/s6-overlay/releases/download/v2.2.0.1/s6-overlay-amd64-installer /tmp/

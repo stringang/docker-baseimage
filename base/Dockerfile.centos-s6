@@ -5,25 +5,27 @@ ARG VERSION
 COPY etc/ /etc
 COPY root/ /root/
 
-RUN yum install -y \
-    tzdata \
-    lsof \
-    vim \
-    bash-completion \
-    telnet \
-    wget \
-    net-tools \
-    iproute \
-    curl \
-    tcpdump \
-    openssl \
-    ca-certificates \
-    openssh \
-    openssh-server \
-    procps \
-    psmisc \
-    unzip \
-    ;
+RUN yum update -y \
+  && yum install -y \
+        tzdata \
+        lsof \
+        vim \
+        bash-completion \
+        telnet \
+        wget \
+        net-tools \
+        iproute \
+        curl \
+        tcpdump \
+        openssl \
+        ca-certificates \
+        openssh \
+        openssh-server \
+        procps \
+        psmisc \
+        unzip \
+  && rm -rf /var/cache/yum \
+  && yum clean all
 
 # ssh
 ADD https://raw.githubusercontent.com/fedora-sysv/initscripts/main/etc/rc.d/init.d/functions /etc/rc.d/init.d/
