@@ -8,9 +8,10 @@ java 镜像：
 - 支持 jvm-sandbox 插件，通过环境变量启动
 
 ## Reference
-- https://github.com/jprjr/docker-ubuntu-stack/tree/master
-- https://github.com/jprjr/docker-debian-stack/blob/base-wheezy/base/Dockerfile
-- https://web.archive.org/web/20160304021857/http://blog.tutum.co/2014/12/02/docker-and-s6-my-new-favorite-process-supervisor/
-- https://github.com/phusion/baseimage-docker
+- [jprjr s6 ubuntu](https://github.com/jprjr/docker-ubuntu-stack/tree/master)
+- [jprjr s6 debian](https://github.com/jprjr/docker-debian-stack/blob/base-wheezy/base/Dockerfile)
+- [jprjr Docker and S6](https://web.archive.org/web/20160304021857/http://blog.tutum.co/2014/12/02/docker-and-s6-my-new-favorite-process-supervisor/)
+- [Phusion Docker image](https://github.com/phusion/baseimage-docker)
+- [ttys3 容器基础镜像的选择](https://ttys3.dev/blog/do-not-use-alpine-in-production-environment)
 - https://www.brendangregg.com/blog/2016-07-13/llnode-nodejs-memory-leak-analysis.html
 - https://developer.ibm.com/articles/explore-nodejs-core-dumps-using-the-llnode-plugin-for-lldb/
