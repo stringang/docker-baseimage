@@ -7,6 +7,27 @@ base 镜像:
 java 镜像：
 - 支持 jvm-sandbox 插件，通过环境变量启动
 
+```shell
+docker-baseimage
+|-- base # 基础 OS 镜像
+|   |-- etc
+|   |   |-- s6
+|   |   |   |-- app
+|   |   |   `-- sshd
+|   |   `-- yum.repos.d
+|   `-- root
+|-- examples # 业务使用示例
+|   |-- java
+|   `-- python
+|-- java # java 基础镜像
+|   |-- etc
+|   |   `-- s6
+|   |       `-- app
+|   `-- sandbox-agent-config
+`-- nodejs # nodejs 基础镜像
+```
+
+
 ## Reference
 - [jprjr s6 ubuntu](https://github.com/jprjr/docker-ubuntu-stack/tree/master)
 - [jprjr s6 debian](https://github.com/jprjr/docker-debian-stack/blob/base-wheezy/base/Dockerfile)
