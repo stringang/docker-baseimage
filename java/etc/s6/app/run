@@ -91,7 +91,7 @@ _load_plugin_args(){
 
     if [[ "${ENABLE_JACOCO}" = "true" ]]; then
         if ! echo "${APP_RUN_ARGS}" | grep 'jacoco/lib/jacocoagent.jar' >/dev/null 2>&1; then
-            export APP_RUN_ARGS="${APP_RUN_ARGS} -javaagent:/opt/example/soft/jacoco/jacoco-agent.jar=includes=com.example.*:com.frxs.*:com.example.*:com.mmmy.*,output=tcpserver,port=9999,address=0.0.0.0"
+            export APP_RUN_ARGS="${APP_RUN_ARGS} -javaagent:/opt/example/soft/jacoco/jacoco-agent.jar=includes=com.example.*:com.xxx.*:com.example.*:com.mmmy.*,output=tcpserver,port=9999,address=0.0.0.0"
             if [[ "${JACOCO_EXCLUDES}" != "" ]]; then
                 export APP_RUN_ARGS="${APP_RUN_ARGS},${JACOCO_EXCLUDES}"
             fi
