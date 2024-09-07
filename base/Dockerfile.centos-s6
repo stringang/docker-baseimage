@@ -2,7 +2,7 @@ FROM centos:centos7.9.2009
 
 ARG VERSION
 
-COPY rootfs /
+COPY --exclude=almalinux.repo rootfs /
 
 RUN yum update -y \
   && yum install -y \
