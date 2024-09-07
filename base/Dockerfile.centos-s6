@@ -2,8 +2,7 @@ FROM centos:centos7.9.2009
 
 ARG VERSION
 
-COPY etc/ /etc
-COPY root/ /root/
+COPY rootfs /
 
 RUN yum update -y \
   && yum install -y \
@@ -44,7 +43,7 @@ RUN wget https://ompc.oss-cn-hangzhou.aliyuncs.com/jvm-sandbox/release/sandbox-1
 # install s6
 RUN mkdir -p /s6
 # 复制 skaware 编译产物，自动解压
-ADD root/s6-2.11.0.0-linux-x86-bin.tar.gz /s6
+ADD rootfs/root/s6-2.11.0.0-linux-x86-bin.tar.gz /s6
 RUN cp /s6/bin/* /usr/bin/
 
 ENTRYPOINT ["/usr/bin/s6-svscan","/etc/s6"]

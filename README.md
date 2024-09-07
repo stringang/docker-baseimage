@@ -11,23 +11,25 @@ java 镜像：
 
 ```shell
 docker-baseimage
-|-- base                   # 基础 OS 镜像
-|   |-- etc
-|   |   |-- s6
-|   |   |   |-- app
-|   |   |   `-- sshd
-|   |   `-- yum.repos.d
-|   `-- root
-|-- examples               # 业务使用示例
+|-- base
+|   `-- rootfs
+|       |-- etc
+|       |   |-- s6
+|       |   |   |-- app
+|       |   |   `-- sshd
+|       |   `-- yum.repos.d
+|       `-- root
+|-- examples
+|   |-- ffmpeg
 |   |-- java
 |   `-- python
-|-- java                   # java 基础镜像
+|-- java
 |   |-- etc
 |   |   `-- s6
 |   |       `-- app
 |   `-- sandbox-agent-config
-|-- nodejs                 # nodejs 基础镜像
-`-- python                 # python 基础镜像
+|-- nodejs
+`-- python
 ```
 
 ## Caveats
