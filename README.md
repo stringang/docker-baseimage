@@ -50,6 +50,7 @@ docker-baseimage
 - https://developer.ibm.com/articles/explore-nodejs-core-dumps-using-the-llnode-plugin-for-lldb/
 - [阿里巴巴 如何打造百万级规模的容器技术](https://events19.linuxfoundation.cn/wp-content/uploads/2017/11/How-to-Build-Container-Technology-at-Millions-Scale-in-Alibaba_Hongliang-Sun.pdf)
 - [docker-alpine-s6](https://github.com/crazy-max/docker-alpine-s6)
+- [bitnami container](https://github.com/bitnami/containers)
 
 [just-containers/skaware]: https://github.com/just-containers/skaware
 [ttys3 容器基础镜像的选择]: https://ttys3.dev/blog/do-not-use-alpine-in-production-environment

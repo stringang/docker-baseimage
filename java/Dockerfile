@@ -13,7 +13,7 @@ WORKDIR /appruntime/java/${APP_NAME}
 
 ENV APP_RUN_ARGS="-XX:+UnlockExperimentalVMOptions -XX:+UseCGroupMemoryLimitForHeap -XX:MaxRAMFraction=2 -Dfile.encoding=UTF-8"
 
+COPY rootfs /
 COPY sandbox-agent-config/ /appruntime/java/
-COPY etc /etc
 
 
