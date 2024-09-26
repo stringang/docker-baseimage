@@ -1,8 +1,9 @@
+# syntax=docker/dockerfile:1.7-labs
 FROM centos:centos7.9.2009
 
 ARG VERSION
 
-COPY --exclude=almalinux.repo rootfs /
+COPY --exclude=**/almalinux.repo rootfs /
 
 RUN yum update -y \
   && yum install -y \
@@ -46,4 +47,18 @@ RUN mkdir -p /s6
 ADD rootfs/root/s6-2.11.0.0-linux-x86-bin.tar.gz /s6
 RUN cp /s6/bin/* /usr/bin/
 
+ARG APP_ROOT=/opt/app-root
+ARG USERNAME=appuser
+ARG USER_UID=1000
+ARG USER_GID=$USER_UID
+RUN groupadd -r $USERNAME -g $USER_GID \
+  && useradd -u $USER_UID -r -g $USERNAME -m -d $APP_ROOT -s /sbin/nologin $USERNAME \
+  && chmod 755 $APP_ROOT \
+  && usermod -g root -G `id -g $USERNAME` $USERNAME \
+  && chmod -R "g+rwX" /etc/s6
+
+USER $USERNAME
+WORKDIR $APP_ROOT
+
+# s6 启动需要创建 lock 文件
 ENTRYPOINT ["/usr/bin/s6-svscan","/etc/s6"]
