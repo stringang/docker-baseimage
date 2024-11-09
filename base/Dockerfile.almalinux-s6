@@ -1,9 +1,15 @@
 # syntax=docker.io/docker/dockerfile:1.7-labs
 FROM almalinux:8.8-20230718
 
+ARG USERNAME=apprunner
+ARG USER_UID=1000
+ARG USER_GID=$USER_UID
+
 LABEL authors="gang.liu"
 
-COPY --exclude=CentOS-Base.repo rootfs /
+COPY --exclude=**/CentOS-Base.repo rootfs /
+
+SHELL ["/bin/bash", "-o", "errexit", "-o", "nounset", "-o", "pipefail", "-c"]
 
 RUN rpm --import https://repo.almalinux.org/almalinux/RPM-GPG-KEY-AlmaLinux \
   && dnf update -y \
@@ -28,7 +34,9 @@ RUN rpm --import https://repo.almalinux.org/almalinux/RPM-GPG-KEY-AlmaLinux \
         epel-release.noarch \
         unzip \
   && rm -rf /var/cache/dnf \
-  && dnf clean all
+  && dnf clean all \
+  && groupadd --gid $USER_GID $USERNAME \
+  && useradd --uid $USER_UID --gid $USER_GID -m $USERNAME
 
 # ssh
 ADD https://raw.githubusercontent.com/fedora-sysv/initscripts/main/etc/rc.d/init.d/functions /etc/rc.d/init.d/
