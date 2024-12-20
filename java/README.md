@@ -10,4 +10,4 @@
 ## troubleshooting
 
 - 配置 JVM DNS 缓存时间。`-Dnetworkaddress.cache.ttl=60 -Dsun.net.inetaddr.ttl=60` 
-
+- 日志中文乱码。`-Dfile.encoding=UTF-8` 使用 `jinfo` 排查

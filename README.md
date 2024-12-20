@@ -12,6 +12,7 @@ java 镜像：
 - 不推荐使用 alpine linux 作为基础镜像，musl libc 有许多[问题存在][ttys3 容器基础镜像的选择]。
 - 使用 static binaries。例如: `ffmpeg`
 - APT 安装添加 `--no-install-recommends` [减少镜像大小][apt instanll减少镜像大小]
+- 使用 rootless 用户运行，需要在[镜像中配置 uid，以及 deployment 配置对应的 uid。](https://www.manjusaka.blog/posts/2021/12/03/a-simple-introduction-about-uid-docker/)
 
 ## Todo
 - ~使用 `rootfs` 目录命名~
