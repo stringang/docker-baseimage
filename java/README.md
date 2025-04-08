@@ -1,11 +1,16 @@
 # Java 应用镜像
 
-默认启动 jmx_prometheus_javaagent 
+使用 `s6` 启动 `java` 进程，默认启动 `jmx_prometheus_javaagent`。
 
 ## 参数说明
 
 - APP_RUN_ARGS： 应用启动参数
 - JVM_OPTS_PREFIX： JVM参数
+
+## 资源限制
+
+https://github.com/fabric8io-images/java/blob/master/images/centos/openjdk8/jdk/README.md
+
 
 ## troubleshooting
 

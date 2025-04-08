@@ -1,6 +1,7 @@
 # docker-baseimage
 
 base 镜像（fat container 类似 [PouchContainer](https://github.com/AliyunContainerService/pouch)）:
+- 指定镜像源
 - 使用 s6 进程管理工具。使用 [skaware][just-containers/skaware] 容器化**静态编译** s6
 - 使用 sshd（安全风险）
 - rootless 运行（javaagent 写权限/nfs 写权限） 
@@ -10,7 +11,7 @@ java 镜像：
 
 ## Caveats
 - 不推荐使用 alpine linux 作为基础镜像，musl libc 有许多[问题存在][ttys3 容器基础镜像的选择]。
-- 使用 static binaries。例如: `ffmpeg`
+- 使用 static binaries(static build)。例如: `ffmpeg`
 - APT 安装添加 `--no-install-recommends` [减少镜像大小][apt instanll减少镜像大小]
 - 使用 rootless 用户运行，需要在[镜像中配置 uid，以及 deployment 配置对应的 uid。](https://www.manjusaka.blog/posts/2021/12/03/a-simple-introduction-about-uid-docker/)
 
