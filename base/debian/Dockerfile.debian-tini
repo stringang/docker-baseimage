@@ -6,7 +6,7 @@ ARG VERSION
 LABEL version="1.0"
 LABEL maintainer="gang.liu"
 
-COPY --exclude=**/s6 --exclude=**/yum.repos.d --exclude=**/*.tar.gz rootfs /
+COPY rootfs /
 
 # set -eux;
 SHELL ["/bin/bash", "-o", "errexit", "-o", "nounset", "-o", "pipefail", "-c"]
@@ -22,11 +22,13 @@ RUN apt-get update \
         curl \
         tcpdump \
         openssl \
+        apt-transport-https \
         ca-certificates \
         tini \
         procps \
+        psmisc \
         python3 \
-   && rm -rf /var/lib/apt/lists/*
+  && rm -rf /var/lib/apt/lists/*
 
 COPY --from=registry.k8s.io/pause:3.10 /pause /usr/bin/pause
 

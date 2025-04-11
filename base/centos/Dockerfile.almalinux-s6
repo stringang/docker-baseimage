@@ -7,13 +7,15 @@ ARG USER_GID=$USER_UID
 
 LABEL authors="gang.liu"
 
-COPY --exclude=**/CentOS-Base.repo rootfs /
+COPY --exclude=**/CentOS-Base.repo --exclude=**/*.tar.gz rootfs /
 
 SHELL ["/bin/bash", "-o", "errexit", "-o", "nounset", "-o", "pipefail", "-c"]
 
-RUN rpm --import https://repo.almalinux.org/almalinux/RPM-GPG-KEY-AlmaLinux \
-  && dnf update -y \
+RUN rpm --import https://mirror.nju.edu.cn/almalinux/RPM-GPG-KEY-AlmaLinux
+
+RUN dnf update -y \
   && dnf install -y \
+        https://mirrors.tuna.tsinghua.edu.cn/epel/epel-release-latest-8.noarch.rpm \
         passwd \
         tzdata \
         lsof \
@@ -31,7 +33,6 @@ RUN rpm --import https://repo.almalinux.org/almalinux/RPM-GPG-KEY-AlmaLinux \
         ca-certificates \
         openssh \
         openssh-server \
-        epel-release.noarch \
         unzip \
   && rm -rf /var/cache/dnf \
   && dnf clean all \

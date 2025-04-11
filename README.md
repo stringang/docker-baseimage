@@ -1,13 +1,19 @@
 # docker-baseimage
 
+## Base 镜像
 base 镜像（fat container 类似 [PouchContainer](https://github.com/AliyunContainerService/pouch)）:
-- 指定镜像源
+- 指定镜像源-https://developer.aliyun.com/mirror/
 - 使用 s6 进程管理工具。使用 [skaware][just-containers/skaware] 容器化**静态编译** s6
 - 使用 sshd（安全风险）
 - rootless 运行（javaagent 写权限/nfs 写权限） 
 
 java 镜像：
 - 支持 jvm-sandbox 插件，通过环境变量启动
+
+## troubleshooting
+```shell
+docker buildx build --no-cache --progress=plain --platform linux/amd64 -f Dockerfile.centos-s6 .
+```
 
 ## Caveats
 - 不推荐使用 alpine linux 作为基础镜像，musl libc 有许多[问题存在][ttys3 容器基础镜像的选择]。
